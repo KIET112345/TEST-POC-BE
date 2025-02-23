@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0.41
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: poc_db
+      MYSQL_USER: test_user #in case, you want to use another user instead of root
+      MYSQL_PASSWORD: test-poc #in case, you want to use another user instead of root
+    ports:
+    #use a different port in case there is an existing local MySQL instance which is using default port 3306
+      - "3307:3306" 
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: poc_backend
+    restart: always
+    depends_on:
+      - db
+    environment: #Change configuration to whatever you want
+      DATABASE_HOST: mysql_db
+      DATABASE_PORT: 3306
+      DATABASE_DB: poc_db
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: root_password
+    ports:
+      - "3000:3000"
+
+volumes:
+  mysql_data:
